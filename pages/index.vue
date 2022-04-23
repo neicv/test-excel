@@ -71,15 +71,15 @@ export default {
     })
   },
 
+  mounted () {
+    this.setIsLoadingExcel(false)
+  },
+
   methods: {
     ...mapActions('globalState', [
       'setIsLoadingExcel',
       'setDataExcel'
     ]),
-
-    mounted () {
-      this.setIsLoadingExcel(false)
-    },
 
     inputChanged (e) {
       // eslint-disable-next-line no-console
@@ -88,6 +88,7 @@ export default {
 
     closeAlert () {
       this.isAlert = false
+      this.$router.push('/task1')
     },
 
     async loadFile (e) {
@@ -105,6 +106,7 @@ export default {
           this.message = `Файл ${this.excelFile.name} успешно загружен.`
           this.alertMessage = `Файл: "${this.excelFile.name}" - успешно загружен.</p>
           Будет осуществлён переход на страницу работы с файлом.`
+          this.alertBtn = 'Перейти'
           this.isAlert = true
           this.setIsLoadingExcel(true)
           this.setDataExcel({ data: result.data, name: this.excelFile.name })

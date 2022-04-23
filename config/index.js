@@ -7,6 +7,16 @@ export const shemaMap = {
   Цена: 'price'
 }
 
+// Поля для вычисления затрат
+export const expenses = {
+  text: 'Затраты',
+  value: 'expenses',
+  fields: [
+    'quantity',
+    'price'
+  ]
+}
+
 // export const shemaMap = {
 //   'INTERNATIONAL NAME': 'internationalName',
 //   'TRADE NAME': 'tardeName',

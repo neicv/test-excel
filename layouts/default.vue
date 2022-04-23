@@ -108,7 +108,7 @@ export default {
         {
           icon: 'mdi-chart-bubble',
           title: 'Задание 1',
-          to: '/inspire',
+          to: '/task1',
           disabled: true
         }
       ],
@@ -127,10 +127,20 @@ export default {
 
   watch: {
     'globalState.isLoadingExcel' (newValue) {
-      this.items.forEach((element) => {
-        element.disabled = !newValue
+      this.items.forEach((element, index) => {
+        if (index !== 0) {
+          element.disabled = !newValue
+        }
       })
     }
+  },
+
+  mounted () {
+    this.items.forEach((element, index) => {
+      if (index !== 0) {
+        element.disabled = true
+      }
+    })
   }
 }
 </script>
