@@ -21,37 +21,41 @@
       class="elevation-1 text-truncate"
       @pagination="changePageCount"
     >
-      <!-- <template
-        #body.append="{ headers }"
-      >
+      <template #item="{ item }">
         <tr>
-          <td :colspan="headers.length">
-            На каждой секции
+          <td
+            v-for="(val, key) in item"
+            :key="key"
+            :class="getItemClass(key)"
+          >
+            {{ val }}
           </td>
         </tr>
-      </template> -->
+      </template>
       <template
         v-if="isLastPage"
         slot="body.append"
       >
         <tr>
-          <td :colspan="headers.length">
-            На каждой секции
+          <td
+            :colspan="colspanLength"
+            class="title font-weight-bold"
+          >
+            <v-layout justify-end>
+              Итого:
+            </v-layout>
+          </td>
+          <td
+            v-for="field in totalFields"
+            :key="field"
+            class="title font-weight-bold te-table-total"
+          >
+            <v-layout justify-end>
+              {{ sumField(field) }}
+            </v-layout>
           </td>
         </tr>
       </template>
-      <!-- <template
-        #footer
-      >
-        <div>
-          This is a footer
-          <tr>
-            <td :colspan="headers.length">
-              На каждой секции
-            </td>
-          </tr>
-        </div>
-      </template> -->
     </v-data-table>
   </v-card>
   <v-row v-else justify="center" align="center">
@@ -70,7 +74,11 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { shemaMap as excelFields, expenses as expensesFields } from '../config'
+import {
+  shemaMap as excelFields,
+  expenses as expensesFields,
+  total as totalFields
+} from '../config'
 
 export default {
   name: 'InspirePage',
@@ -87,7 +95,8 @@ export default {
       pagination: {
         page: 0,
         pageCount: 0
-      }
+      },
+      totalFields: []
     }
   },
 
@@ -97,18 +106,26 @@ export default {
     }),
 
     headers () {
-      const field = []
+      const fields = []
       for (const key in excelFields) {
-        field.push({ text: key, value: excelFields[key] })
+        fields.push({ text: key, value: excelFields[key] })
       }
 
-      if (field.length) {
-        field[0].align = 'start'
-      }
       // Добавление столбца затрат
-      field.push({ text: expensesFields.text, value: expensesFields.value })
+      fields.push({
+        text: expensesFields.text,
+        value: expensesFields.value,
+        align: 'end'
+      })
 
-      return field
+      // Заголовок - выравнивание
+      if (fields.length && this.totalFields && this.totalFields.length) {
+        fields.forEach((field) => {
+          field.align = this.totalFields.includes(field.value) ? 'end' : 'start'
+        })
+      }
+
+      return fields
     },
 
     items () {
@@ -117,7 +134,7 @@ export default {
 
       result.forEach((element) => {
         expenses = element[expensesFields.fields[0]] * element[expensesFields.fields[1]]
-        element.expenses = +expenses.toFixed(2)
+        element.expenses = expenses.toFixed(2)
       })
 
       return result
@@ -135,14 +152,47 @@ export default {
 
     isLastPage () {
       return this.pagination.page === this.pagination.pageCount
+    },
+
+    colspanLength () {
+      return this.headers.length - totalFields.fields.length
     }
+  },
+
+  mounted () {
+    this.totalFields = totalFields.fields
   },
 
   methods: {
     changePageCount (pagination) {
-      // eslint-disable-next-line no-console
       this.pagination = pagination
+    },
+
+    sumField (key) {
+      // sum data in give key (property)
+      let result = 0
+      if (this.items && this.items.length) {
+        result = this.items.reduce((a, b) => +a + (+b[key] || 0), 0)
+      }
+
+      return result.toFixed(2)
+    },
+
+    getItemClass (key) {
+      let result = 'text-right'
+
+      if (this.totalFields && this.totalFields.length) {
+        result = this.totalFields.includes(key) ? 'text-right' : 'text-left'
+      }
+
+      return result
     }
   }
 }
 </script>
+
+<style scoped>
+  .te-table-total {
+    border: 1px solid white;
+  }
+</style>

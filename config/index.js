@@ -17,6 +17,15 @@ export const expenses = {
   ]
 }
 
+// Поля для вычисления итогов
+export const total = {
+  fields: [
+    'quantity',
+    'price',
+    'expenses'
+  ]
+}
+
 // export const shemaMap = {
 //   'INTERNATIONAL NAME': 'internationalName',
 //   'TRADE NAME': 'tardeName',
