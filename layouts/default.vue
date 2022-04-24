@@ -110,6 +110,12 @@ export default {
           title: 'Задание 1',
           to: '/task1',
           disabled: true
+        },
+        {
+          icon: 'mdi-firework',
+          title: 'Задание 2',
+          to: '/task2',
+          disabled: true
         }
       ],
       miniVariant: false,

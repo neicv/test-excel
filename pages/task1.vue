@@ -1,63 +1,71 @@
 <template>
-  <v-card v-if="globalState.dataExcel.data && globalState.dataExcel.data.length" width="100vw">
-    <v-card-title>
-      Файл: {{ globalState.dataExcel.name }}
-      <v-spacer />
-      <v-text-field
-        v-model="search"
-        append-icon="mdi-magnify"
-        label="Поиск"
-        single-line
-        hide-details
-      />
-    </v-card-title>
-    <v-data-table
-      dense
-      :headers="headers"
-      :items="items"
-      :search="search"
-      :footer-props="footer_props"
-      :items-per-page="15"
-      class="elevation-1 text-truncate"
-      @pagination="changePageCount"
-    >
-      <template #item="{ item }">
-        <tr>
-          <td
-            v-for="(val, key) in item"
-            :key="key"
-            :class="getItemClass(key)"
-          >
-            {{ val }}
-          </td>
-        </tr>
-      </template>
-      <template
-        v-if="isLastPage"
-        slot="body.append"
+  <div v-if="globalState.dataExcel.data && globalState.dataExcel.data.length" width="100vw">
+    <v-card>
+      <v-card-title>
+        Файл: {{ globalState.dataExcel.name }}
+      </v-card-title>
+    </v-card>
+    <v-card>
+      <v-card-title>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Поиск"
+          single-line
+          hide-details
+        />
+      </v-card-title>
+      <v-data-table
+        dense
+        :headers="headers"
+        :items="items"
+        :search="search"
+        :footer-props="footer_props"
+        :items-per-page="15"
+        class="elevation-1 text-truncate"
+        @pagination="changePageCount"
       >
-        <tr>
-          <td
-            :colspan="colspanLength"
-            class="title font-weight-bold"
-          >
-            <v-layout justify-end>
-              Итого:
-            </v-layout>
-          </td>
-          <td
-            v-for="field in totalFields"
-            :key="field"
-            class="title font-weight-bold te-table-total"
-          >
-            <v-layout justify-end>
-              {{ sumField(field) }}
-            </v-layout>
-          </td>
-        </tr>
-      </template>
-    </v-data-table>
-  </v-card>
+        <!-- <template #top>
+
+        </template> -->
+        <template #item="{ item }">
+          <tr>
+            <td
+              v-for="(val, key) in item"
+              :key="key"
+              :class="getItemClass(key)"
+            >
+              {{ val }}
+            </td>
+          </tr>
+        </template>
+        <template
+          v-if="isLastPage"
+          slot="body.append"
+        >
+          <tr>
+            <td
+              :colspan="colspanLength"
+              class="title font-weight-bold"
+            >
+              <v-layout justify-end>
+                Итого:
+              </v-layout>
+            </td>
+            <td
+              v-for="field in totalFields"
+              :key="field"
+              class="title font-weight-bold te-table-total"
+            >
+              <v-layout justify-end>
+                {{ sumField(field) }}
+              </v-layout>
+            </td>
+          </tr>
+        </template>
+      </v-data-table>
+    </v-card>
+  </div>
   <v-row v-else justify="center" align="center">
     <v-col cols="12" sm="6" md="8">
       <v-card>
@@ -81,7 +89,7 @@ import {
 } from '../config'
 
 export default {
-  name: 'InspirePage',
+  name: 'TaskOne',
 
   data () {
     return {
