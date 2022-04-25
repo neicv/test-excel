@@ -26,12 +26,4 @@ export const total = {
   ]
 }
 
-// export const shemaMap = {
-//   'INTERNATIONAL NAME': 'internationalName',
-//   'TRADE NAME': 'tardeName',
-//   'RELEASE FORM': 'releaseForm',
-//   QUANTITY: 'quantity',
-//   PRICE: 'price'
-// }
-
 export default shemaMap

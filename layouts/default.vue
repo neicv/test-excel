@@ -121,7 +121,8 @@ export default {
       miniVariant: false,
       right: true,
       rightDrawer: false,
-      title: 'Тестовое задание про Excel'
+      mainTitle: 'Тестовое задание: ',
+      title: ''
     }
   },
 
@@ -138,6 +139,13 @@ export default {
           element.disabled = !newValue
         }
       })
+    },
+
+    $route (newVal, oldVal) {
+      const title = this.items.find(el => el.to === newVal.path)
+      if (title) {
+        this.title = this.mainTitle + title.title
+      }
     }
   },
 
@@ -147,6 +155,8 @@ export default {
         element.disabled = true
       }
     })
+
+    this.title = this.mainTitle + this.items[0].title
   }
 }
 </script>
