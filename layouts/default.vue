@@ -37,26 +37,13 @@
       >
         <v-icon>mdi-{{ `chevron-${miniVariant ? 'right' : 'left'}` }}</v-icon>
       </v-btn>
-      <!-- <v-btn
-        icon
-        @click.stop="clipped = !clipped"
-      >
-        <v-icon>mdi-application</v-icon>
-      </v-btn> -->
-      <!-- <v-btn
-        icon
-        @click.stop="fixed = !fixed"
-      >
-        <v-icon>mdi-minus</v-icon>
-      </v-btn> -->
       <v-toolbar-title v-text="title" />
       <v-spacer />
-      <!-- <v-btn
-        icon
-        @click.stop="rightDrawer = !rightDrawer"
-      >
-        <v-icon>mdi-menu</v-icon>
-      </v-btn> -->
+      <v-layout justify-end>
+        <v-list-item-content>
+          <ThemeToggler />
+        </v-list-item-content>
+      </v-layout>
     </v-app-bar>
     <v-main>
       <v-container fluid>
@@ -91,9 +78,11 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import ThemeToggler from '../components/ThemeToggler.vue'
 
 export default {
   name: 'DefaultLayout',
+  components: { ThemeToggler },
   data () {
     return {
       clipped: false,
@@ -116,6 +105,12 @@ export default {
           title: 'Задание 2',
           to: '/task2',
           disabled: true
+        },
+        {
+          icon: 'mdi-table',
+          title: 'Задание 3',
+          to: '/task3',
+          disabled: false
         }
       ],
       miniVariant: false,
@@ -129,7 +124,11 @@ export default {
   computed: {
     ...mapGetters({
       globalState: 'globalState/getGlobalState'
-    })
+    }),
+
+    currentRoutePath () {
+      return this.$route.path
+    }
   },
 
   watch: {
@@ -142,21 +141,29 @@ export default {
     },
 
     $route (newVal, oldVal) {
-      const title = this.items.find(el => el.to === newVal.path)
-      if (title) {
-        this.title = this.mainTitle + title.title
-      }
+      this.setTitleName(newVal.path)
     }
   },
 
   mounted () {
     this.items.forEach((element, index) => {
-      if (index !== 0) {
+      // Загрузка и Задание 3 доступны по-умолчанию
+      if (index !== 0 && index !== 3) {
         element.disabled = true
       }
     })
 
-    this.title = this.mainTitle + this.items[0].title
+    this.setTitleName(this.currentRoutePath)
+  },
+
+  methods: {
+    setTitleName (path) {
+      const title = this.items.find(el => el.to === path)
+
+      if (title) {
+        this.title = this.mainTitle + title.title
+      }
+    }
   }
 }
 </script>

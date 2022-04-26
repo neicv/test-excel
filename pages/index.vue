@@ -21,7 +21,6 @@
             placeholder="Выберете файл excel"
             label="Excel"
             truncate-length="60"
-            @change="inputChanged"
           />
           <!-- <v-spacer /> -->
           <v-btn
@@ -80,11 +79,6 @@ export default {
       'setIsLoadingExcel',
       'setDataExcel'
     ]),
-
-    inputChanged (e) {
-      // eslint-disable-next-line no-console
-      console.log('file type=', this.excelFile && this.excelFile.type)
-    },
 
     closeAlert () {
       this.isAlert = false

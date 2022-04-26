@@ -1,3 +1,5 @@
+import url from 'url'
+import bodyParser from 'body-parser'
 import colors from 'vuetify/es5/util/colors'
 
 export default {
@@ -28,6 +30,7 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    '~/plugins/api-context.js'
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -43,6 +46,7 @@ export default {
 
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
+    '@nuxtjs/axios'
   ],
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
@@ -66,5 +70,24 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {
-  }
+    extend (config) {
+      config.node = {
+        fs: 'empty'
+      }
+    }
+  },
+
+  serverMiddleware: [
+    { path: '/api', handler: bodyParser.json() },
+    {
+      path: '/api',
+      handler: (req, res, next) => {
+        // eslint-disable-next-line
+        req.query = url.parse(req.url, true).query
+        req.params = { ...req.query, ...req.body }
+        next()
+      }
+    },
+    { path: '/api', handler: '~/server/middleware/server-api.js' }
+  ]
 }

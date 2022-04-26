@@ -32,7 +32,7 @@
               v-for="(val, key) in item"
               :key="key"
               :class="getItemClass(key)"
-              v-html="getAgregateContent(key, val)"
+              v-html="getAgregateContent(val, 0, key === columnKey[4])"
             >
               <!-- {{ getAgregateContent(val) }} -->
             </td>
@@ -55,9 +55,10 @@
               v-for="field in totalFields"
               :key="field"
               class="title font-weight-bold te-table-total"
+              :class="themeState"
             >
               <v-layout justify-end>
-                {{ sumField(field) }}
+                {{ totalResult[field] }}
               </v-layout>
             </td>
           </tr>
@@ -80,13 +81,15 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import mixin from '../mixins/mixin'
 import {
   shemaMap as excelFields,
   expenses as expensesFields,
-  total as totalFields
+  total as totalFields,
+  DEFAULT_DECIMAL_PLACES
 } from '../config'
+
+const DEFAULT_EXCLUDE_FIELD = 'price'
 
 export default {
   name: 'ExcelTable',
@@ -106,6 +109,7 @@ export default {
 
   data () {
     return {
+      DEFAULT_EXCLUDE_FIELD,
       pagination: {
         page: 0,
         pageCount: 0
@@ -115,10 +119,6 @@ export default {
   },
 
   computed: {
-    ...mapGetters({
-      globalState: 'globalState/getGlobalState'
-    }),
-
     columnKey () {
       const fields = []
       for (const key in excelFields) {
@@ -180,6 +180,23 @@ export default {
 
     colspanLength () {
       return this.headers.length - totalFields.fields.length
+    },
+
+    totalResult () {
+      const res = {}
+
+      // for (const field in Object.values(totalFields.fields)) {
+      Object.values(totalFields.fields).forEach((field) => {
+        let sum = this.sumField(field)
+        if (sum && typeof sum === 'number') {
+          sum = sum.toFixed(DEFAULT_DECIMAL_PLACES)
+        }
+        res[field] = sum
+      })
+
+      res[this.getFormulaCase(totalFields.formula)] = this.calculateFormula(res, totalFields.formula).toFixed(2)
+
+      return res
     }
   },
 
@@ -194,12 +211,16 @@ export default {
 
     sumField (key) {
       // sum data in give key (property)
+      if (key === DEFAULT_EXCLUDE_FIELD) {
+        return ''
+      }
+
       let result = 0
       if (this.items && this.items.length) {
         result = this.items.reduce((a, b) => +a + (+b[key] || 0), 0)
       }
 
-      return result.toFixed(2)
+      return result
     },
 
     getItemClass (key) {
@@ -212,38 +233,73 @@ export default {
       return result
     },
 
-    getAgregateContent (key, val = '') {
-      let str = val + ''
-
-      if (str === '') {
-        return ''
+    // Вычисление простой арифмитической формулы
+    // Два числа и операнд - + * /
+    // values объект в котором по ключам находятся данные
+    // в формуле указаны ключи
+    calculateFormula (values = '', formula = '') {
+      if (!values || !formula) {
+        return NaN
       }
 
-      const arr = str.split('\n')
-      let result = ''
+      const realFormula = Object.values(formula)[0]
 
-      if (arr.length > 1) {
-        arr.forEach((el, index) => {
-          if (index !== arr.length) {
-            result += el.trim() + '<br />'
-          }
-        })
-      } else {
-        // Если цена, форматировать вывод
-        if (key === this.columnKey[4]) {
-          str = +val.toFixed(2)
+      if (!realFormula) {
+        return NaN
+      }
+      const arr = realFormula.split(' ')
+      if (!arr || arr.length === 0 || arr.length > 3) {
+        return NaN
+      }
+
+      let res = ''
+      try {
+        const operator = arr[1]
+        const a = +values[arr[0]]
+        const b = +values[arr[2]]
+
+        switch (operator) {
+          case '+':
+            res = a + b
+            break
+
+          case '-':
+            res = a - b
+            break
+
+          case '*':
+            res = a * b
+            break
+
+          case '/':
+            res = a / b
+            break
+
+          default:
+            res = NaN
+            break
         }
-        return str
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log('calc error: ', e)
       }
 
-      return `<span>${result}</span>`
+      return res
+    },
+
+    getFormulaCase (formula) {
+      return Object.keys(formula)[0]
     }
   }
 }
 </script>
 
 <style scoped>
-  .te-table-total {
+  .te-table-total.dark {
     border: 1px solid white;
+  }
+
+  .te-table-total.light {
+    border: 1px solid #565656;
   }
 </style>
